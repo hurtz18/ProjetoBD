@@ -1,0 +1,95 @@
+﻿
+
+CREATE TABLE cliente (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    endereco VARCHAR(255),
+    data_cadastro DATE NOT NULL,
+    telefone VARCHAR(15)
+);
+
+CREATE TABLE categoria (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    descricao TEXT
+);
+
+CREATE TABLE funcionario (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    cargo VARCHAR(100),
+    telefone VARCHAR(15),
+    email VARCHAR(100)
+);
+
+CREATE TABLE produto (
+    id SERIAL PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    preco NUMERIC(10, 2) NOT NULL,
+    id_categoria INT REFERENCES categoria(id) ON DELETE CASCADE
+);
+
+CREATE TABLE pedido (
+    id SERIAL PRIMARY KEY,
+    quantidade INT NOT NULL,
+    data DATE NOT NULL,
+    id_cliente INT REFERENCES cliente(id) ON DELETE CASCADE,
+    id_produto INT REFERENCES produto(id) ON DELETE CASCADE
+);
+
+INSERT INTO cliente (nome, endereco, data_cadastro, telefone)
+VALUES
+('Carlos Madeira', 'Rua dos Carpinteiros, 123', '2023-08-01', '(11) 91234-5678'),
+('Maria Carvalho', 'Avenida da Serraria, 456', '2023-07-15', '(21) 98765-4321');
+
+INSERT INTO categoria (nome, descricao)
+VALUES
+('Mesas', 'Mesas de jantar, centro e escritório'),
+('Cadeiras', 'Cadeiras de madeira para diversos ambientes');
+
+INSERT INTO funcionario (nome, cargo, telefone, email)
+VALUES
+('João Torres', 'Marceneiro', '(11) 99988-7766', 'joao.torres@madeiradelei.com'),
+('Clara Almeida', 'Designer', '(21) 98877-6655', 'clara.almeida@madeiradelei.com');
+
+INSERT INTO produto (nome, preco, id_categoria)
+VALUES
+('Mesa de Jantar', 1200.00, 1),
+('Cadeira de Escritório', 600.00, 2);
+
+INSERT INTO pedido (quantidade, data, id_cliente, id_produto)
+VALUES
+(2, '2024-03-10', 1, 1),
+(4, '2024-03-12', 2, 2);
+
+UPDATE cliente
+SET endereco = 'Rua Nova Serraria, 789'
+WHERE nome = 'Maria Carvalho';
+
+UPDATE pedido
+SET quantidade = 5
+WHERE id_cliente = 2 AND id_produto = 2;
+
+SELECT
+    c.nome AS cliente_nome,
+    c.data_cadastro AS cliente_data_cadastro,
+    c.telefone AS cliente_telefone,
+    c.endereco AS cliente_endereco,  
+    p.quantidade AS pedido_quantidade,
+    p.data AS pedido_data,
+    pr.nome AS produto_nome,
+    pr.preco AS produto_preco,
+    cat.nome AS categoria_nome,
+    cat.descricao AS categoria_descricao,
+    f.nome AS funcionario_nome,
+    f.email AS funcionario_email
+FROM
+    cliente c
+LEFT JOIN
+    pedido p ON c.id = p.id_cliente
+LEFT JOIN
+    produto pr ON p.id_produto = pr.id
+LEFT JOIN
+    categoria cat ON pr.id_categoria = cat.id
+LEFT JOIN
+    funcionario f ON pr.id_categoria = cat.id;
